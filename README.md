@@ -23,7 +23,7 @@ python autocorrection/generate_dataset/create_data.py\
 2. Preprocess data:
 ```bash
 python autocorrection/generate_dataset/preprocess_data.py\
---file_csv=autocorrection/dataset/Data/Hume/data_chinh_ta_hume_noise.csv
+--file_csv=autocorrection/dataset/Data/data_chinh_ta_hume_noise.csv
 ```
 3. Training model:
 ```bash
