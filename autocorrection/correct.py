@@ -60,7 +60,7 @@ class AutoCorrection:
         data = []
         word_ids = self.word_tokenizer.texts_to_sequences([sentence])[0]
         data = [torch.tensor(word_ids, dtype=torch.long).to(self.device).unsqueeze(dim=0)]
-        return data
+        return data, None, None
 
     def restore_sentence(self, sentence, mark_replaces):
         tokens = word_tokenize(sentence)
