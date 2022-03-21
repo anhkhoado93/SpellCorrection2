@@ -1,0 +1,2 @@
+sudo docker build -t spell .
+sudo docker run --name spell_api -p 35204:8080 --rm -v ${PWD}/tone/weights:/fastapi-spell/tone/weights -v ${PWD}/autocorrection/weights:/fastapi-spell/autocorrection/weights spell
