@@ -28,7 +28,8 @@ class AutoCorrection:
     def select_model(self):
         if self.model_name == 'phobert':
             model = PhoBertEncoder(n_words=len(self.word_tokenizer.word_index),
-                                   n_labels_error=2
+                                   n_labels_error=2,
+                                   use_detection_context=True
                                    ).to(self.device)
         elif self.model_name == 'trans':
             model = MaskedSoftBert(
