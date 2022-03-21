@@ -44,7 +44,7 @@ BATCH_SIZE=32
 
 DOMAIN = 'luanvan'
 N_WORDS = {
-    'luanvan': 13013,
+    'luanvan': 323430,
     'general': 57981
 }
 
@@ -54,4 +54,4 @@ BERT_PRETRAINED = 'vinai/phobert-base'
 MODEL_SAVE_PATH = 'autocorrection/weights/'
 SOFT_MASKED_BERT_MODEL = f'model_{DOMAIN}.pth'
 
-PKL_PATH = 'autocorrection/input/hume/'
+PKL_PATH = 'autocorrection/input/luanvan/'
