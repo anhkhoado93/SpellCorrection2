@@ -59,10 +59,10 @@ class AutoCorrection:
     def make_inputs(self, sentence):
         data = []
         word_ids = self.word_tokenizer.texts_to_sequences([sentence])[0]
-        data = torch.tensor(word_ids, dtype=torch.long).to(self.device).unsqueeze(dim=0)
+        data = torch.tensor(torch.tensor(word_ids, dtype=torch.long).to(self.device).unsqueeze(dim=0))
         batch_ids = None
         if self.model_name == 'phobert':
-            batch_ids = split_token(self.phobert_tokenizer, sentence)
+            batch_ids = torch.tensor(split_token(self.phobert_tokenizer, sentence))
         return data, None, batch_ids
 
     def restore_sentence(self, sentence, mark_replaces):
