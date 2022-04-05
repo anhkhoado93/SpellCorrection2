@@ -1,12 +1,12 @@
 DEVICE = "cuda"
 
 # phobert: PhoBertEncoder, trans: MaskedSoftBert, char_trans: CharWordTransformerEncoding
-MODEL_NAME = 'trans'
+MODEL_NAME = 'phobert'
 
 TRAINING_DATA_PERCENT=0.8
 
 # Learning rate value
-LEARNING_RATE=1e-5
+LEARNING_RATE=5e-5
 
 # Continue train with the previous model
 IS_CONTINUOUS_TRAIN=False
@@ -19,7 +19,7 @@ IS_SPLIT_INDEXES=True
 # Number epoches
 N_EPOCH=100
 
-# lambda  for control the important level of detection loss value
+# lambda for control the important level of detection loss value
 LAMDA=0.6
 
 # parameter controlled the contribution of the label 0 in the detection loss
@@ -28,19 +28,19 @@ PENALTY_VALUE=0.3
 USE_DETECTION_CONTEXT=True
 
 # TransformerEncoderDataset if True else PhoBertDataset
-IS_TRANSFORMER = True
+IS_TRANSFORMER = False
 
 # Combine embedding char level to word embedding; 
 ADD_CHAR_LEVEL = False
 
 # For PhoBERT
-IS_BERT = False
+IS_BERT = True
 
 # Fine-tuned BERT pretrained model
-FINE_TUNED=True
+FINE_TUNED = True
 
 # Batch size samples
-BATCH_SIZE=32
+BATCH_SIZE=64
 
 DOMAIN = 'luanvan'
 N_WORDS = {
