@@ -52,7 +52,7 @@ class ModelTrainer:
             self.train_idxs, self.val_idxs = train_val_splits(self.n_samples, training_data_percent)
         else:
             self.train_idxs = load_file_picke(PKL_PATH+'train_indexs.pkl')
-            self.val_idxs = load_file_picke(PKL_PATH+'val_indexs.pkl')
+            self.val_idxs = load_file_picke(PKL_PATH+'val_indexs.pkl')[:-1]
 
         self.train_loader, self.val_loader = self.make_loader()
         self.select_model(model_name)
