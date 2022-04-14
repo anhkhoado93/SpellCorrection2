@@ -1,6 +1,6 @@
 import pickle
 import pandas as pd
-from model.detect_trainer import ModelDetectTrainer
+from model.trainer import ModelTrainer
 from params import (BATCH_SIZE, FINE_TUNED, IS_CONTINUOUS_TRAIN,
                     IS_SPLIT_INDEXES, LAMDA, LEARNING_RATE,
                     N_EPOCH, PATH_PRETRAINED_MODEL, PENALTY_VALUE,
@@ -10,7 +10,7 @@ with open(PKL_PATH+f'{MODEL_NAME}.pkl', 'rb') as file:
     data = pd.DataFrame(data = pickle.load(file))
 n_samples = data.shape[0]
 def main():
-    trainer = ModelDetectTrainer (
+    trainer = ModelTrainer (
         model_name=MODEL_NAME,
         n_samples=n_samples,
         training_data_percent=TRAINING_DATA_PERCENT,
@@ -19,6 +19,7 @@ def main():
         path_pretrain_model=PATH_PRETRAINED_MODEL,
         is_split_indexs=IS_SPLIT_INDEXES,
         n_epochs=N_EPOCH,
+        lam=LAMDA,
         penalty_value=PENALTY_VALUE,
         use_detection_context=USE_DETECTION_CONTEXT,
         is_transformer=IS_TRANSFORMER, 
