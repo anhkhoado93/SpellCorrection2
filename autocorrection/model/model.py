@@ -225,7 +225,7 @@ class PhoBertEncoder(nn.Module):
         self.bert = AutoModel.from_pretrained(BERT_PRETRAINED, config=self.bert_config)
         self.d_hid = self.bert.config.hidden_size
         self.detection = nn.Linear(self.d_hid, n_labels_error)
-        self.use_detection_context = use_detection_context
+        self.use_detection_context = not detect_only
         if self.use_detection_context:
             self.detection_context_layer = nn.Sequential(
                 nn.Softmax(dim=-1),
@@ -234,7 +234,8 @@ class PhoBertEncoder(nn.Module):
         self.max_n_subword = 30
         self.linear_subword_embedding = nn.Linear(self.max_n_subword * self.d_hid, self.d_hid)
         self.fine_tuned = fine_tuned
-        self.correction = nn.Linear(self.d_hid, n_words)
+        if not detect_only:
+            self.correction = nn.Linear(self.d_hid, n_words)
         self.is_freeze_model()
 
     def is_freeze_model(self):
@@ -292,8 +293,9 @@ class PhoBertEncoder(nn.Module):
             detection_context = self.detection_context_layer(detection_outputs)  # batch_size*seq_length*hidden_size
             outputs = outputs + detection_context
 
-        correction_outputs = self.correction(outputs)
-        return detection_outputs, correction_outputs
+        if self.use_detection_context:
+            correction_outputs = self.correction(outputs)
+        return detection_outputs, _
 
 
 class GRUDetection(nn.Module):

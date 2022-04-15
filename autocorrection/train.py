@@ -26,7 +26,8 @@ def main():
         add_char_level=ADD_CHAR_LEVEL,
         is_bert = IS_BERT,
         fine_tuned=FINE_TUNED,
-        batch_size=BATCH_SIZE
+        batch_size=BATCH_SIZE,
+        
     )
     trainer.fit()
 
