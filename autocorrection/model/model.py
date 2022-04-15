@@ -218,7 +218,7 @@ class PhoBertEncoder(nn.Module):
     def __init__(self, n_words: int, 
                 n_labels_error: int,
                 fine_tuned: bool = False, 
-                use_detection_context: bool = False):
+                use_detection_context: bool = True):
         super(PhoBertEncoder, self).__init__()
         self.bert_config = AutoConfig.from_pretrained(BERT_PRETRAINED, return_dict=True,
                                                          output_hidden_states=True)
@@ -242,7 +242,7 @@ class PhoBertEncoder(nn.Module):
             for param in child.parameters():
                 param.requires_grad = self.fine_tuned
 
-    def merge_embedding(self, sequence_embedding: Tensor, sequence_split, mode='linear'):
+    def merge_embedding(self, sequence_embedding: Tensor, sequence_split, mode='avg'):
         sequence_embedding = sequence_embedding[1: sum(sequence_split) + 1]  # batch_size*seq_length*hidden_size
         embeddings = torch.split(sequence_embedding, sequence_split, dim=0)
         word_embeddings = pad_sequence(
@@ -294,6 +294,7 @@ class PhoBertEncoder(nn.Module):
 
         correction_outputs = self.correction(outputs)
         return detection_outputs, correction_outputs
+
 
 class GRUDetection(nn.Module):
     def __init__(self, n_words: int, 
