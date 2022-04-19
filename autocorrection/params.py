@@ -11,7 +11,7 @@ LEARNING_RATE=5e-5
 # Continue train with the previous model
 IS_CONTINUOUS_TRAIN=False
 
-PATH_PRETRAINED_MODEL='autocorrection/weights/model/model_last.pth'
+PATH_PRETRAINED_MODEL='weights/model/model_last.pth'
 
 # Using the default split data for training and validation
 IS_SPLIT_INDEXES=True
@@ -51,7 +51,7 @@ N_WORDS = {
 # For preprocessing
 BERT_PRETRAINED = 'vinai/phobert-base'
 
-MODEL_SAVE_PATH = 'autocorrection/weights/'
+MODEL_SAVE_PATH = 'weights/'
 SOFT_MASKED_BERT_MODEL = f'model_{DOMAIN}.pth'
 
-PKL_PATH = 'autocorrection/input/luanvan/'
+PKL_PATH = 'input/luanvan/'
