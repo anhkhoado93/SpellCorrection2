@@ -73,7 +73,7 @@ class ModelTrainer:
                 n_words=self.train_dataset.n_words,
                 n_labels_error=2,
                 fine_tuned=self.fine_tuned,
-                use_detection_context=True
+                use_detection_context=self.use_detection_context
             ).to(self.device)
 
         elif model_name == "trans":
