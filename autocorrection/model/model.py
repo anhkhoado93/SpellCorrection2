@@ -224,13 +224,13 @@ class PhoBertEncoder(nn.Module):
                                                          output_hidden_states=True)
         self.bert = AutoModel.from_pretrained(BERT_PRETRAINED, config=self.bert_config)
         self.d_hid = self.bert.config.hidden_size
-        self.detection = nn.Linear(self.d_hid, n_labels_error)
+        # self.detection = nn.Linear(self.d_hid, n_labels_error)
         self.use_detection_context = use_detection_context
-        if self.use_detection_context:
-            self.detection_context_layer = nn.Sequential(
-                nn.Softmax(dim=-1),
-                nn.Linear(n_labels_error, self.d_hid)
-            )
+        # if self.use_detection_context:
+        #     self.detection_context_layer = nn.Sequential(
+        #         nn.Softmax(dim=-1),
+        #         nn.Linear(n_labels_error, self.d_hid)
+        #     )
         self.max_n_subword = 30
         self.linear_subword_embedding = nn.Linear(self.max_n_subword * self.d_hid, self.d_hid)
         self.fine_tuned = fine_tuned
@@ -287,13 +287,14 @@ class PhoBertEncoder(nn.Module):
             padding_value=0,
             batch_first=True
         )
-        detection_outputs = self.detection(outputs)
-        if self.use_detection_context:
-            detection_context = self.detection_context_layer(detection_outputs)  # batch_size*seq_length*hidden_size
-            outputs = outputs + detection_context
+        # detection_outputs = self.detection(outputs)
+        # if self.use_detection_context:
+        #     detection_context = self.detection_context_layer(detection_outputs)  # batch_size*seq_length*hidden_size
+        #     outputs = outputs + detection_context
 
         correction_outputs = self.correction(outputs)
-        return detection_outputs, correction_outputs
+        # return detection_outputs, correction_outputs
+        return correction_outputs
 
 
 class GRUDetection(nn.Module):

@@ -63,7 +63,7 @@ class ModelTrainer:
             self.model.load_state_dict(model_state['model'])
             self.optimizer.load_state_dict(model_state['optimizer'])
             print("LOADED DONE")
-        self.loss_detection = nn.CrossEntropyLoss(weight=torch.tensor([self.penalty_value, 1- self.penalty_value]).to(device))
+        # self.loss_detection = nn.CrossEntropyLoss(weight=torch.tensor([self.penalty_value, 1- self.penalty_value]).to(device))
         self.loss_correction = nn.CrossEntropyLoss(ignore_index=self.pad_id)
         self.epoch_temp = 0
 
@@ -146,11 +146,12 @@ class ModelTrainer:
         return train_loader, val_loader
 
     def get_loss(self, detection_outputs, label_errors, correction_outputs, words_correction):
-        loss1 = self.loss_detection(detection_outputs.reshape(-1, self.n_errors), label_errors.reshape(-1))
+        # loss1 = self.loss_detection(detection_outputs.reshape(-1, self.n_errors), label_errors.reshape(-1))
    
         loss2 = self.loss_correction(correction_outputs.reshape(-1, self.n_words),
                                      words_correction.reshape(-1))
-        return self.lam * loss1 + (1 - self.lam) * loss2
+        # return self.lam * loss1 + (1 - self.lam) * loss2
+        return loss2
 
     def train_one_epoch(self):
         train_loss = 0
@@ -161,15 +162,12 @@ class ModelTrainer:
             words_correction = data['word_corrections'].to(self.device)
             label_errors = data['label_errors'].to(device)
             batch_splits = data.get('batch_splits', None)
-            if self.add_char_level:
-                char_error_ids = data['char_error_ids'].to(self.device)
-                detection_outputs, correction_outputs = self.model(error_ids, char_error_ids, batch_splits)
-            elif self.is_bert:
+            if self.is_bert:
                 attention_masks = data['attention_masks'].to(device)
-                detection_outputs, correction_outputs = self.model(error_ids, attention_masks, batch_splits)
+                correction_outputs = self.model(error_ids, attention_masks, batch_splits)
             else:
-                detection_outputs, correction_outputs = self.model(error_ids)
-            loss = self.get_loss(detection_outputs, label_errors, correction_outputs, words_correction)
+                correction_outputs = self.model(error_ids)
+            loss = self.get_loss(None, None, correction_outputs, words_correction)
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
@@ -191,18 +189,14 @@ class ModelTrainer:
             label_errors = data['label_errors'].to(device)
 
             batch_splits = data.get('batch_splits', None)
-            if self.add_char_level:
-                char_error_ids = data['char_error_ids'].to(self.device)
-                detection_outputs, correction_outputs = self.model(error_ids, char_error_ids, batch_splits)
-            elif self.is_bert:
-                attention_masks = data['attention_masks'].to(self.device)
-                detection_outputs, correction_outputs = self.model(error_ids, attention_masks, batch_splits)
+            if self.is_bert:
+                attention_masks = data['attention_masks'].to(device)
+                correction_outputs = self.model(error_ids, attention_masks, batch_splits)
             else:
-                detection_outputs, correction_outputs = self.model(error_ids)
-
-            loss = self.get_loss(detection_outputs, label_errors, correction_outputs, words_correction)
+                correction_outputs = self.model(error_ids)
+            loss = self.get_loss(None, None, correction_outputs, words_correction)
             val_loss += loss.item()
-            predict_detections.append(get_label(detection_outputs))
+            # predict_detections.append(get_label(detection_outputs))
             predict_corrections.append(get_label(correction_outputs))
             label_detections.append(label_errors.reshape(-1))
             label_corrections.append(words_correction.reshape(-1))
@@ -210,12 +204,12 @@ class ModelTrainer:
                 print(idx, end=" ")
         print()
         # detection
-        predict_detections = torch.cat(predict_detections).reshape(-1)
-        label_detections = torch.cat(label_detections).reshape(-1)
-        temp1 = label_detections.detach().cpu().numpy()
-        temp2 = predict_detections.detach().cpu().numpy()
-        print(classification_report(temp1, temp2))
-        total_prediction_detection_correct = torch.sum(predict_detections == label_detections).item()
+        # predict_detections = torch.cat(predict_detections).reshape(-1)
+        # label_detections = torch.cat(label_detections).reshape(-1)
+        # temp1 = label_detections.detach().cpu().numpy()
+        # temp2 = predict_detections.detach().cpu().numpy()
+        # print(classification_report(temp1, temp2))
+        # total_prediction_detection_correct = torch.sum(predict_detections == label_detections).item()
         n_samples = predict_detections.size(0)
 
         indexs_true_predict = (predict_detections == 1).nonzero(as_tuple=True)[0]
@@ -223,34 +217,36 @@ class ModelTrainer:
         number_wrong = torch.sum(label_detections == 1).item()
         
         
-        index_true_predict_correct = []
-        for index in indexs_true.detach().cpu().numpy():
-            if predict_detections[index].item() == 1:
-                index_true_predict_correct.append(index)
+        # index_true_predict_correct = []
+        # for index in indexs_true.detach().cpu().numpy():
+        #     if predict_detections[index].item() == 1:
+        #         index_true_predict_correct.append(index)
                 
-        total_label_1_correct = len(index_true_predict_correct)
-        # correction
-        predict_corrections_v1 = torch.cat(predict_corrections).reshape(-1)[index_true_predict_correct]
-        label_corrections_v1 = torch.cat(label_corrections).reshape(-1)[index_true_predict_correct]
-        total_prediction_correction_correct = torch.sum(predict_corrections_v1 == label_corrections_v1).item()
+        # total_label_1_correct = len(index_true_predict_correct)
+        # # correction
+        # predict_corrections_v1 = torch.cat(predict_corrections).reshape(-1)[index_true_predict_correct]
+        # label_corrections_v1 = torch.cat(label_corrections).reshape(-1)[index_true_predict_correct]
+        # total_prediction_correction_correct = torch.sum(predict_corrections_v1 == label_corrections_v1).item()
         
         predict_corrections_v2 = torch.cat(predict_corrections).reshape(-1)[indexs_true]
         label_corrections_v2 = torch.cat(label_corrections).reshape(-1)[indexs_true]
         total_correction_correct = torch.sum(predict_corrections_v2 == label_corrections_v2).item()
-        print("Total label 1 correct:", total_label_1_correct)
-        print("Acc label 1 correct:", total_label_1_correct/number_wrong)
-        print("Total predict word wrong:", indexs_true_predict.size(0))
-        print("Total predict word wrong correct:", total_prediction_correction_correct)
+        # print("Total label 1 correct:", total_label_1_correct)
+        # print("Acc label 1 correct:", total_label_1_correct/number_wrong)
+        # print("Total predict word wrong:", indexs_true_predict.size(0))
+        print("Total predict word wrong correct:", total_correction_correct)
         print("Total number word wrong:", number_wrong)
         # print(n_samples)
         # print(total_correction_correct)
-        if indexs_true_predict.size(0) != 0:
-            return val_loss / len(
-                self.val_loader), total_prediction_detection_correct / n_samples, total_prediction_correction_correct / number_wrong, total_prediction_correction_correct / indexs_true_predict.size(
-                0)
-        else:
-            return val_loss / len(
-                self.val_loader), total_prediction_detection_correct / n_samples, 0, 0
+        # if indexs_true_predict.size(0) != 0:
+        #     return val_loss / len(
+        #         self.val_loader), 0, total_prediction_correction_correct / number_wrong, total_prediction_correction_correct / indexs_true_predict.size(
+        #         0)
+        # else:
+        #     return val_loss / len(
+        #         self.val_loader), 0, 0, 0
+        return val_loss / len(
+            self.val_loader), 0, total_correction_correct / number_wrong, total_correction_correct / indexs_true.size(0)
 
     def save_model(self, epoch: int, history: dict):
         model_states = {
@@ -272,19 +268,19 @@ class ModelTrainer:
             start_time = time.time()
             self.epoch_temp = epoch
             train_loss = self.train_one_epoch()
-            val_loss, val_acc_detect, val_acc_correction, val_precision_correction = self.evaluate_model()
+            val_loss, _, val_acc_correction, val_precision_correction = self.evaluate_model()
             history['train_loss'].append(train_loss)
-            history['val_acc_detect'].append(val_acc_detect)
-            history['val_acc_correction'].append(val_acc_correction)
-            history['val_precision_correction'].append(val_precision_correction)
+            # history['val_acc_detect'].append(val_acc_detect)
+            # history['val_acc_correction'].append(val_acc_correction)
+            # history['val_precision_correction'].append(val_precision_correction)
             history['val_loss'].append(val_loss)
             print(
-                f"EPOCH:{epoch}---Detector val acc:{val_acc_detect}---Corrector val acc:{val_acc_correction}---Corrector val precision:{val_precision_correction}---Train "
+                f"EPOCH:{epoch}---Train "
                 f"loss:{train_loss}---Val loss:{val_loss}---Time:{time.time() - start_time}"
             )
-            if (val_acc_detect + 2*val_acc_correction) / 3 > best_acc:
+            if val_acc_correction > best_acc:
                 self.save_model(epoch, history)
-                best_acc = (val_acc_detect + 2*val_acc_correction) / 3
+                best_acc = val_acc_correction
                 
-            print("Current acc:",(val_acc_detect + 2*val_acc_correction) / 3)
+            print("Current acc:",val_acc_correction)
             print("Best acc:", best_acc)
