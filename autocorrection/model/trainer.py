@@ -196,7 +196,7 @@ class ModelTrainer:
                 correction_outputs = self.model(error_ids)
             loss = self.get_loss(None, None, correction_outputs, words_correction)
             val_loss += loss.item()
-            predict_detections.append(get_label(detection_outputs))
+            # predict_detections.append(get_label(detection_outputs))
             predict_corrections.append(get_label(correction_outputs))
             label_detections.append(label_errors.reshape(-1))
             label_corrections.append(words_correction.reshape(-1))
@@ -204,15 +204,15 @@ class ModelTrainer:
                 print(idx, end=" ")
         print()
         # detection
-        predict_detections = torch.cat(predict_detections).reshape(-1)
+        # predict_detections = torch.cat(predict_detections).reshape(-1)
         label_detections = torch.cat(label_detections).reshape(-1)
         # temp1 = label_detections.detach().cpu().numpy()
         # temp2 = predict_detections.detach().cpu().numpy()
         # print(classification_report(temp1, temp2))
         # total_prediction_detection_correct = torch.sum(predict_detections == label_detections).item()
-        n_samples = predict_detections.size(0)
+        n_samples = label_detections.size(0)
 
-        indexs_true_predict = (predict_detections == 1).nonzero(as_tuple=True)[0]
+        # indexs_true_predict = (predict_detections == 1).nonzero(as_tuple=True)[0]
         indexs_true = (label_detections == 1).nonzero(as_tuple=True)[0]
         number_wrong = torch.sum(label_detections == 1).item()
         
