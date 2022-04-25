@@ -204,8 +204,8 @@ class ModelTrainer:
                 print(idx, end=" ")
         print()
         # detection
-        # predict_detections = torch.cat(predict_detections).reshape(-1)
-        # label_detections = torch.cat(label_detections).reshape(-1)
+        predict_detections = torch.cat(predict_detections).reshape(-1)
+        label_detections = torch.cat(label_detections).reshape(-1)
         # temp1 = label_detections.detach().cpu().numpy()
         # temp2 = predict_detections.detach().cpu().numpy()
         # print(classification_report(temp1, temp2))
