@@ -196,7 +196,7 @@ class ModelTrainer:
                 correction_outputs = self.model(error_ids)
             loss = self.get_loss(None, None, correction_outputs, words_correction)
             val_loss += loss.item()
-            # predict_detections.append(get_label(detection_outputs))
+            predict_detections.append(get_label(detection_outputs))
             predict_corrections.append(get_label(correction_outputs))
             label_detections.append(label_errors.reshape(-1))
             label_corrections.append(words_correction.reshape(-1))
