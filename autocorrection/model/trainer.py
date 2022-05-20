@@ -146,10 +146,18 @@ class ModelTrainer:
         return train_loader, val_loader
 
     def get_loss(self, detection_outputs, label_errors, correction_outputs, words_correction):
-        loss1 = self.loss_detection(detection_outputs.reshape(-1, self.n_errors), label_errors.reshape(-1))
-   
+        detection_outputs = detection_outputs.reshape(-1, self.n_errors) 
+        detected_index = []
+        for index in torch.argmax(detection_outputs):
+            if index == 1:
+                detected_index.append(index)   
+        word_correction = words_correction.reshape(-1)
+        actual_words_correction = torch.zeros_like(words_correction)
+        for index in detected_index:
+            actual_words_correction[index] = word_correction[index]
+        loss1 = self.loss_detection(actual_detection_outputs, label_errors.reshape(-1))
         loss2 = self.loss_correction(correction_outputs.reshape(-1, self.n_words),
-                                     words_correction.reshape(-1))
+                                     actual_words_correction)
         return self.lam * loss1 + (1 - self.lam) * loss2
 
     def train_one_epoch(self):
